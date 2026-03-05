@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        
+        <div class="card shadow-lg border-0 rounded-3 my-5">
+            <div class="card-body p-md-5">
+                
+                <h2 class="card-title text-center mb-4 display-6 fw-bold text-primary">
+                    {% if object %}
+                        <i class="bi bi-pencil-square me-2"></i> Edit Document: {{ object.title|truncatechars:30 }}
+                    {% else %}
+                        <i class="bi bi-cloud-arrow-up-fill me-2"></i> Upload New Document
+                    {% endif %}
+                </h2>
+                
+                <hr class="mb-4">
+
+                <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            <strong>Please correct the errors below:</strong>
+                            <ul class="mb-0">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>{{ field|title }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
+                            
+                            {% if field.field.widget.input_type == 'file' %}
+                                <input type="file" 
+                                       class="form-control form-control-lg {% if field.errors %}is-invalid{% endif %}" 
+                                       name="{{ field.name }}" 
+                                       id="{{ field.id_for_label }}">
+                            {% else %}
+                                <input type="{{ field.field.widget.input_type }}" 
+                                       class="form-control {% if field.errors %}is-invalid{% endif %}" 
+                                       placeholder="{{ field.label }}"
+                                       name="{{ field.name }}" 
+                                       id="{{ field.id_for_label }}"
+                                       value="{{ field.value|default_if_none:'' }}">
+                            {% endif %}
+                            
+                            {% if field.help_text %}
+                                <div class="form-text text-muted">{{ field.help_text }}</div>
+                            {% endif %}
+                            
+                            {% for error in field.errors %}
+                                <div class="invalid-feedback">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
+                        <a href="{% url 'document_list' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-x-lg me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success btn-lg shadow-sm">
+                            <i class="bi bi-floppy-fill me-1"></i> Save Document
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}
